@@ -151,10 +151,10 @@ func getMetrics(networkMetrics map[string]NetworkUsage) (Metrics, error) {
 	})
 	netLock.Unlock()
 
-	pm2Metrics, err := getPm2Metrics()
-	if err == nil {
-		metrics.PM2 = pm2Metrics
-	}
+	// pm2Metrics, err := getPm2Metrics()
+	// if err == nil {
+	// 	metrics.PM2 = pm2Metrics
+	// }
 
 	return metrics, nil
 }
@@ -195,6 +195,19 @@ func main() {
 	server := gin.Default()
 
 	go sendMetrics()
+
+	server.GET("/pm2-metrics", func(c *gin.Context) {
+		pm2_metrics, err := getPm2Metrics()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   err.Error(),
+				"message": "Failed to get PM2 metrics",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, pm2_metrics)
+	})
 
 	server.GET("/metrics", func(c *gin.Context) {
 		ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
