@@ -70,8 +70,8 @@ type PM2Process struct {
 	PID   int    `json:"pid"`
 	PM2ID int    `json:"pm_id"`
 	Monit struct {
-		Memory int `json:"memory"`
-		CPU    int `json:"cpu"`
+		Memory float64 `json:"memory"`
+		CPU    float64 `json:"cpu"`
 	} `json:"monit"`
 	PM2Env struct {
 		Status string `json:"status"`
