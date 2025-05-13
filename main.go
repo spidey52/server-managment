@@ -89,6 +89,7 @@ func getPm2Metrics() ([]PM2Process, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("PM2 output:", string(output))
 	var processes []PM2Process
 	err = json.Unmarshal(output, &processes)
 	return processes, err
@@ -195,6 +196,18 @@ func main() {
 	server := gin.Default()
 
 	go sendMetrics()
+
+	// add middleware to handle CORS
+	server.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.JSON(http.StatusOK, nil)
+			return
+		}
+		c.Next()
+	})
 
 	server.GET("/pm2-metrics", func(c *gin.Context) {
 		pm2_metrics, err := getPm2Metrics()
